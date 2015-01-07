@@ -1,0 +1,20 @@
+PODS:
+  - CYFBeacon (0.1.0)
+  - Expecta (0.3.1)
+  - Specta (0.2.1)
+
+DEPENDENCIES:
+  - CYFBeacon (from `../`)
+  - Expecta
+  - Specta (~> 0.2.1)
+
+EXTERNAL SOURCES:
+  CYFBeacon:
+    :path: ../
+
+SPEC CHECKSUMS:
+  CYFBeacon: 3c214d1af05c682d90c27b23ba4d6b4775c8df8b
+  Expecta: 03aabd0a89d8dea843baecb19a7fd7466a69a31d
+  Specta: 9141310f46b1f68b676650ff2854e1ed0b74163a
+
+COCOAPODS: 0.35.0
