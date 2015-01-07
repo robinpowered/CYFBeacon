@@ -10,14 +10,12 @@
 Pod::Spec.new do |s|
   s.name             = "CYFBeacon"
   s.version          = "0.1.0"
-  s.summary          = "A short description of CYFBeacon."
+  s.summary          = "A beacon manager and a ranged beacons smoother"
   s.description      = <<-DESC
-                       An optional longer description of CYFBeacon
+                       A beacon manager and a ranged beacons smoother that output averaged beacons' accuracy.
 
-                       * Markdown format.
-                       * Don't worry about the indent, we strip it!
                        DESC
-  s.homepage         = s"https://github.com/yifeic/CYFBeacon"
+  s.homepage         = "https://github.com/yifeic/CYFBeacon"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "yifeic" => "yifei.chen@outlook.com" }
