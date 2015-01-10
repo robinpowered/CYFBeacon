@@ -16,7 +16,9 @@
 
 @property (nonatomic, strong) NSArray *regions;
 @property (nonatomic, strong) CLLocationManager *locationManager;
-
+@property (nonatomic, strong) RACSignal *regionEnterSignal;
+@property (nonatomic, strong) RACSignal *regionExitSignal;
+@property (nonatomic, strong) RACSignal *noBeaconsNearbySignal;
 @end
 
 
@@ -35,14 +37,38 @@
         
         _regions = regions;
         
-        RACSignal *regionEnterSignal =
-            [[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
+        self.regionEnterSignal =
+            [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
                 filter:^BOOL(RACTuple *tuple) {
+                    CLBeaconRegion *region = tuple.third;
+                    
                     return [tuple.second integerValue] == CLRegionStateInside;
+                }]
+                map:^id(RACTuple *tuple) {
+                    CLBeaconRegion *region = tuple.third;
+                    return region;
                 }];
         
-        [regionEnterSignal subscribeNext:^(id x) {
-            [self.locationManager startUpdatingLocation];
+        self.regionExitSignal =
+            [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
+                filter:^BOOL(RACTuple *tuple) {
+                    CLBeaconRegion *region = tuple.third;
+                    
+                    return [tuple.second integerValue] == CLRegionStateOutside;
+                }]
+                map:^id(RACTuple *tuple) {
+                    CLBeaconRegion *region = tuple.third;
+                    return region;
+                }];
+        
+        [self.regionEnterSignal subscribeNext:^(CLBeaconRegion *region) {
+            
+            [self.locationManager startRangingBeaconsInRegion:region];
+        }];
+        
+        [self.regionExitSignal subscribeNext:^(CLBeaconRegion *region) {
+            
+            [self.locationManager stopRangingBeaconsInRegion:region];
         }];
         
         
@@ -60,7 +86,7 @@
             }] array];
         
         
-        RACSignal *combinedRangedBeaonsSignal =
+        RACSignal *combinedRangedBeaconsSignal =
             [[[RACSignal combineLatest:regionsRangedBeaconsSignals] throttle:0.3] map:^id(RACTuple *regionsRangedBeacons) {
                 return
                     [regionsRangedBeacons.rac_sequence foldLeftWithStart:[NSMutableArray arrayWithCapacity:20] reduce:^id(NSMutableArray *result, NSArray *rangedBeacons) {
@@ -69,24 +95,7 @@
                         return result;
                     }];
             }];
-        _rangedBeaconsSignal = combinedRangedBeaonsSignal;
-        
-        
-        //if ranged beaons are empty for 4 times, stopUpdatingLocation which disables background ranging.
-        RACSignal *noBeaconsNearbySignal =
-            [[combinedRangedBeaonsSignal scanWithStart:@0 reduce:^id(NSNumber *zeroCount, NSArray *next) {
-                if (next.count == 0) {
-                    return @([zeroCount integerValue]+1);
-                }
-                return @1;
-            }] filter:^BOOL(NSNumber *count) {
-                return [count integerValue] > 3;
-            }];
-        
-        [noBeaconsNearbySignal subscribeNext:^(id x) {
-            [self.locationManager stopUpdatingLocation];
-        }];
-        
+        _rangedBeaconsSignal = combinedRangedBeaconsSignal;
 
     }
     return self;
@@ -102,13 +111,20 @@
 
     for (CLBeaconRegion *region in self.regions) {
         [self.locationManager startMonitoringForRegion:region];
-        [self.locationManager requestStateForRegion:region];
+//        [self.locationManager requestStateForRegion:region];
         [self.locationManager startRangingBeaconsInRegion:region];
     }
     
+    //startUpdatingLocation keeps the app alive in background
+    [self.locationManager startUpdatingLocation];
 }
 
+- (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
+    NSLog(@"CYFBeaconManager del didDetermineState region %ld %@", state, region.identifier);
+}
 
-
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+    NSLog(@"CYFBeaconManager didUpdateLocations %ld", locations.count);
+}
 
 @end
