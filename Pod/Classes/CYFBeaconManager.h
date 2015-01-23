@@ -14,6 +14,7 @@
 
 @property (nonatomic, readonly) NSArray *regions;
 @property (nonatomic, strong, readonly) RACSignal *rangedBeaconsSignal;
+@property (nonatomic, readonly) BOOL authorizationStatusDetermined;
 
 - (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager;
 - (void)startMonitoringRegionsAndRangingBeacons;
