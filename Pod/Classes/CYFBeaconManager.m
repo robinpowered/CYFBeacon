@@ -97,15 +97,22 @@
             }];
         _rangedBeaconsSignal = combinedRangedBeaconsSignal;
 
-        RAC(self, authorizationStatusDetermined) =
-            [[[[self rac_signalForSelector:@selector(locationManager:didChangeAuthorizationStatus:) fromProtocol:@protocol(CLLocationManagerDelegate)]
+        RACSignal *authorizationStatusSignal =
+            [[[self rac_signalForSelector:@selector(locationManager:didChangeAuthorizationStatus:) fromProtocol:@protocol(CLLocationManagerDelegate)]
                 reduceEach:^id(CLLocationManager *manager, NSNumber *status) {
                     return status;
                 }]
-                startWith:@(CLLocationManager.authorizationStatus)]
-                map:^id(NSNumber *status) {
-                    return @(status.integerValue != kCLAuthorizationStatusNotDetermined);
-                }];
+                startWith:@(CLLocationManager.authorizationStatus)];
+        
+        RAC(self, authorizationStatusDetermined) =
+             [authorizationStatusSignal map:^id(NSNumber *status) {
+                 return @(status.integerValue != kCLAuthorizationStatusNotDetermined);
+             }];
+        
+        RAC(self, authorizationStatusAllowed) =
+            [authorizationStatusSignal map:^id(NSNumber *status) {
+                return @(status.integerValue == kCLAuthorizationStatusAuthorized || status.integerValue == kCLAuthorizationStatusAuthorizedAlways);
+            }];
     }
     return self;
 }
