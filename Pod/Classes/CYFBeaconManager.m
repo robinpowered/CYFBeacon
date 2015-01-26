@@ -132,7 +132,7 @@
     }
     
     //startUpdatingLocation keeps the app alive in background
-    [self.locationManager startUpdatingLocation];
+//    [self.locationManager startUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
