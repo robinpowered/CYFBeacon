@@ -63,12 +63,12 @@
         
         [self.regionEnterSignal subscribeNext:^(CLBeaconRegion *region) {
             
-            [self.locationManager startRangingBeaconsInRegion:region];
+//            [self.locationManager startRangingBeaconsInRegion:region];
         }];
         
         [self.regionExitSignal subscribeNext:^(CLBeaconRegion *region) {
             
-            [self.locationManager stopRangingBeaconsInRegion:region];
+//            [self.locationManager stopRangingBeaconsInRegion:region];
         }];
         
         
