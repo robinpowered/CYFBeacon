@@ -31,7 +31,7 @@
     if (self) {
         _locationManager = locationManager;
         _locationManager.delegate = self;
-        
+        _locationManager.pausesLocationUpdatesAutomatically = NO;
         _locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
         _locationManager.distanceFilter = 35;
         
