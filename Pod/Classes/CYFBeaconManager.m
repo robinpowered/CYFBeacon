@@ -118,6 +118,7 @@
 }
 
 - (void)startMonitoringRegionsAndRangingBeacons {
+    NSLog(@"CYFBeaconManager startMonitoringRegionsAndRangingBeacons");
     if (CLLocationManager.authorizationStatus == kCLAuthorizationStatusNotDetermined) {
         if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             [self.locationManager requestAlwaysAuthorization];
@@ -133,6 +134,14 @@
     
     //startUpdatingLocation keeps the app alive in background
     [self.locationManager startUpdatingLocation];
+}
+
+- (void)stopMonitoringAndRanging {
+    NSLog(@"CYFBeaconManager stopMonitoringAndRanging");
+    for (CLBeaconRegion *region in self.regions) {
+        [self.locationManager stopRangingBeaconsInRegion:region];
+        [self.locationManager stopMonitoringForRegion:region];
+    }
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
