@@ -142,6 +142,7 @@
         [self.locationManager stopRangingBeaconsInRegion:region];
         [self.locationManager stopMonitoringForRegion:region];
     }
+    [self.locationManager stopUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
