@@ -63,12 +63,12 @@
         
         [self.regionEnterSignal subscribeNext:^(CLBeaconRegion *region) {
             
-//            [self.locationManager startRangingBeaconsInRegion:region];
+            [self.locationManager startRangingBeaconsInRegion:region];
         }];
         
         [self.regionExitSignal subscribeNext:^(CLBeaconRegion *region) {
             
-//            [self.locationManager stopRangingBeaconsInRegion:region];
+            [self.locationManager stopRangingBeaconsInRegion:region];
         }];
         
         
@@ -129,7 +129,7 @@
     for (CLBeaconRegion *region in self.regions) {
         [self.locationManager startMonitoringForRegion:region];
 //        [self.locationManager requestStateForRegion:region];
-        [self.locationManager startRangingBeaconsInRegion:region];
+        // [self.locationManager startRangingBeaconsInRegion:region];
     }
     
     //startUpdatingLocation keeps the app alive in background
