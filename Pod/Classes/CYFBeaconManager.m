@@ -149,6 +149,10 @@
     [self.locationManager startUpdatingLocation];
 }
 
+- (void)stopUpdatingLocation {
+    [self.locationManager stopUpdatingLocation];
+}
+
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
     NSLog(@"CYFBeaconManager del didDetermineState region %ld %@", state, region.identifier);
 }

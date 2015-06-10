@@ -21,5 +21,6 @@
 - (void)startMonitoringRegionsAndRangingBeacons;
 - (void)stopMonitoringAndRanging;
 - (void)startUpdatingLocation;
+- (void)stopUpdatingLocation;
 
 @end
