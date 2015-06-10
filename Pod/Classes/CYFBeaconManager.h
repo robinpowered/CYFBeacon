@@ -20,5 +20,6 @@
 - (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager;
 - (void)startMonitoringRegionsAndRangingBeacons;
 - (void)stopMonitoringAndRanging;
+- (void)startUpdatingLocation;
 
 @end
