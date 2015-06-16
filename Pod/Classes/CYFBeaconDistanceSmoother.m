@@ -157,7 +157,6 @@ static const float kAccuracyFar = 10;
         CYFBeaconHistory *history = self.beaconToHistory[key];
         
         if (![newBeaconKeys containsObject:key]) {
-            NSLog(@"does not contain %@ %@", history.beacon.major, history.beacon.minor);
             [history addBeaconMissingRecord];
         }
     }
