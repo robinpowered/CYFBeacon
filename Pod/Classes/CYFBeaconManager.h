@@ -28,5 +28,6 @@
 - (void)stopUpdatingLocation;
 
 - (void)startMonitoringGeoRegion:(CLCircularRegion *)geoRegion;
+- (NSArray *)monitoredGeoRegions;
 
 @end

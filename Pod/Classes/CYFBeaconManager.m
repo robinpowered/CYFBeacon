@@ -40,6 +40,11 @@
         
         _regions = regions;
         
+        // stop all geoRegion monitoring
+        for (CLCircularRegion *geoRegion in self.monitoredGeoRegions) {
+            [self.locationManager stopMonitoringForRegion:geoRegion];
+        }
+        
         self.regionEnterSignal =
             [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
                 filter:^BOOL(RACTuple *tuple) {
@@ -175,7 +180,29 @@
 }
 
 - (void)startMonitoringGeoRegion:(CLCircularRegion *)geoRegion {
+    NSSet *monitoredRegions = self.locationManager.monitoredRegions;
+
+    BOOL monitoring = NO;
+    for (CLRegion *region in monitoredRegions) {
+        if ([region.identifier isEqualToString:geoRegion.identifier]) {
+            monitoring = YES;
+            break;
+        }
+    }
+    
+    if (!monitoring && monitoredRegions.count >= 20-self.regions.count) {
+        return;
+    }
+    
     [self.locationManager startMonitoringForRegion:geoRegion];
+}
+
+- (NSArray *)monitoredGeoRegions {
+    NSSet *monitoredRegions = self.locationManager.monitoredRegions;
+    return
+    [[monitoredRegions.rac_sequence filter:^BOOL(CLRegion *region) {
+        return [region isKindOfClass:CLCircularRegion.class];
+    }] array];
 }
 
 @end
