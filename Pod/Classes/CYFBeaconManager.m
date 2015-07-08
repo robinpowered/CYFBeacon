@@ -19,6 +19,9 @@
 @property (nonatomic, strong) RACSignal *regionEnterSignal;
 @property (nonatomic, strong) RACSignal *regionExitSignal;
 @property (nonatomic, strong) RACSignal *noBeaconsNearbySignal;
+@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic, strong) CLCircularRegion *geoRegion;
+
 @end
 
 
@@ -40,8 +43,6 @@
         self.regionEnterSignal =
             [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
                 filter:^BOOL(RACTuple *tuple) {
-                    CLBeaconRegion *region = tuple.third;
-                    
                     return [tuple.second integerValue] == CLRegionStateInside;
                 }]
                 map:^id(RACTuple *tuple) {
@@ -52,8 +53,6 @@
         self.regionExitSignal =
             [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
                 filter:^BOOL(RACTuple *tuple) {
-                    CLBeaconRegion *region = tuple.third;
-                    
                     return [tuple.second integerValue] == CLRegionStateOutside;
                 }]
                 map:^id(RACTuple *tuple) {
@@ -61,16 +60,29 @@
                     return region;
                 }];
         
-        [self.regionEnterSignal subscribeNext:^(CLBeaconRegion *region) {
-            
-            [self.locationManager startRangingBeaconsInRegion:region];
-        }];
+        [[self.regionEnterSignal
+            filter:^BOOL(CLRegion *region) {
+                return [region isKindOfClass:CLBeaconRegion.class];
+            }]
+            subscribeNext:^(CLBeaconRegion *region) {
+                [self.locationManager startRangingBeaconsInRegion:region];
+            }];
         
-        [self.regionExitSignal subscribeNext:^(CLBeaconRegion *region) {
-            
-            // [self.locationManager stopRangingBeaconsInRegion:region];
-        }];
+        [[self.regionEnterSignal
+            filter:^BOOL(CLRegion *region) {
+                return [region isKindOfClass:CLCircularRegion.class];
+            }]
+            subscribeNext:^(CLCircularRegion *region) {
+                self.geoRegion = region;
+            }];
         
+        [[self.regionExitSignal
+            filter:^BOOL(CLRegion *region) {
+                return [region isKindOfClass:CLCircularRegion.class];
+            }]
+            subscribeNext:^(CLCircularRegion *region) {
+                self.geoRegion = nil;
+            }];
         
         RACSignal *rangedBeaconsSignal = [self rac_signalForSelector:@selector(locationManager:didRangeBeacons:inRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)];
         NSArray *regionsRangedBeaconsSignals =
@@ -159,6 +171,11 @@
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     NSLog(@"CYFBeaconManager didUpdateLocations %ld", locations.count);
+    self.location = locations.firstObject;
+}
+
+- (void)startMonitoringGeoRegion:(CLCircularRegion *)geoRegion {
+    [self.locationManager startMonitoringForRegion:geoRegion];
 }
 
 @end
