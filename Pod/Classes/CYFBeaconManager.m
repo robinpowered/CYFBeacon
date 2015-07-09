@@ -205,4 +205,10 @@
     }] array];
 }
 
+- (void)stopMonitoringAllGeoRegions {
+    for (CLCircularRegion *geoRegion in self.monitoredGeoRegions) {
+        [self.locationManager stopMonitoringForRegion:geoRegion];
+    }
+}
+
 @end
