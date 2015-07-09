@@ -195,6 +195,7 @@
     }
     
     [self.locationManager startMonitoringForRegion:geoRegion];
+    [self.locationManager requestStateForRegion:geoRegion];
 }
 
 - (NSArray *)monitoredGeoRegions {
