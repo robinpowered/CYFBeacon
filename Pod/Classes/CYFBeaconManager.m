@@ -86,7 +86,9 @@
                 return [region isKindOfClass:CLCircularRegion.class];
             }]
             subscribeNext:^(CLCircularRegion *region) {
-                self.geoRegion = nil;
+                if (self.geoRegion && [region.identifier isEqualToString:self.geoRegion.identifier]) {
+                    self.geoRegion = nil;
+                }
             }];
         
         RACSignal *rangedBeaconsSignal = [self rac_signalForSelector:@selector(locationManager:didRangeBeacons:inRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)];
