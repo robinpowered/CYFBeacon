@@ -161,7 +161,6 @@
         [self.locationManager stopRangingBeaconsInRegion:region];
         [self.locationManager stopMonitoringForRegion:region];
     }
-    [self.locationManager stopUpdatingLocation];
 }
 
 - (void)startUpdatingLocation {
