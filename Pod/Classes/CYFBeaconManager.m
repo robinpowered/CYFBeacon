@@ -21,6 +21,7 @@
 @property (nonatomic, strong) RACSignal *noBeaconsNearbySignal;
 @property (nonatomic, strong) CLLocation *location;
 @property (nonatomic, strong) CLCircularRegion *geoRegion;
+@property (nonatomic, readwrite) BOOL isRanging;
 
 @end
 
@@ -36,9 +37,11 @@
         _locationManager.delegate = self;
         _locationManager.pausesLocationUpdatesAutomatically = NO;
         _locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
-        _locationManager.distanceFilter = 35;
+        _locationManager.distanceFilter = 100;
         
         _regions = regions;
+        _intervalForBeaconRanging = 60;
+        _lengthOfBeaconRanging = 8;
         
         // stop all geoRegion monitoring
         for (CLCircularRegion *geoRegion in self.monitoredGeoRegions) {
@@ -132,6 +135,29 @@
             [authorizationStatusSignal map:^id(NSNumber *status) {
                 return @(status.integerValue == kCLAuthorizationStatusAuthorized || status.integerValue == kCLAuthorizationStatusAuthorizedAlways);
             }];
+        
+        
+        RACSignal *intevalSignal = [RACSignal interval:self.intervalForBeaconRanging onScheduler:[RACScheduler mainThreadScheduler]];
+         
+        [intevalSignal
+            subscribeNext:^(id x) {
+                NSLog(@"interval startttt ranging");
+                if (self.isRanging) {
+                    for (CLBeaconRegion *region in self.regions) {
+                        [self.locationManager startRangingBeaconsInRegion:region];
+                    }
+                }
+            }];
+        
+        [[intevalSignal delay:self.lengthOfBeaconRanging]
+            subscribeNext:^(id x) {
+                NSLog(@"interval topppppp ranging");
+                if (self.isRanging) {
+                    for (CLBeaconRegion *region in self.regions) {
+                        [self.locationManager stopRangingBeaconsInRegion:region];
+                    }
+                }
+            }];
     }
     return self;
 }
@@ -151,6 +177,7 @@
         [self.locationManager startRangingBeaconsInRegion:region];
     }
     
+    self.isRanging = YES;
     //startUpdatingLocation keeps the app alive in background
 //    [self.locationManager startUpdatingLocation];
 }
@@ -161,6 +188,7 @@
         [self.locationManager stopRangingBeaconsInRegion:region];
         [self.locationManager stopMonitoringForRegion:region];
     }
+    self.isRanging = NO;
 }
 
 - (void)startUpdatingLocation {
