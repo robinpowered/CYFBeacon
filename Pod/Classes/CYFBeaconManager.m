@@ -19,8 +19,6 @@
 @property (nonatomic, strong) RACSignal *regionEnterSignal;
 @property (nonatomic, strong) RACSignal *regionExitSignal;
 @property (nonatomic, strong) RACSignal *noBeaconsNearbySignal;
-@property (nonatomic, strong) CLLocation *location;
-@property (nonatomic, strong) CLCircularRegion *geoRegion;
 @property (nonatomic, readwrite) BOOL isRanging;
 
 @end
@@ -35,18 +33,10 @@
     if (self) {
         _locationManager = locationManager;
         _locationManager.delegate = self;
-        _locationManager.pausesLocationUpdatesAutomatically = NO;
-        _locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
-        _locationManager.distanceFilter = 100;
         
         _regions = regions;
         _intervalForBeaconRanging = 60;
         _lengthOfBeaconRanging = 8;
-        
-        // stop all geoRegion monitoring
-        for (CLCircularRegion *geoRegion in self.monitoredGeoRegions) {
-            [self.locationManager stopMonitoringForRegion:geoRegion];
-        }
         
         self.regionEnterSignal =
             [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
@@ -74,24 +64,6 @@
             }]
             subscribeNext:^(CLBeaconRegion *region) {
                 [self.locationManager startRangingBeaconsInRegion:region];
-            }];
-        
-        [[self.regionEnterSignal
-            filter:^BOOL(CLRegion *region) {
-                return [region isKindOfClass:CLCircularRegion.class];
-            }]
-            subscribeNext:^(CLCircularRegion *region) {
-                self.geoRegion = region;
-            }];
-        
-        [[self.regionExitSignal
-            filter:^BOOL(CLRegion *region) {
-                return [region isKindOfClass:CLCircularRegion.class];
-            }]
-            subscribeNext:^(CLCircularRegion *region) {
-                if (self.geoRegion && [region.identifier isEqualToString:self.geoRegion.identifier]) {
-                    self.geoRegion = nil;
-                }
             }];
         
         RACSignal *rangedBeaconsSignal = [self rac_signalForSelector:@selector(locationManager:didRangeBeacons:inRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)];
@@ -173,13 +145,10 @@
 
     for (CLBeaconRegion *region in self.regions) {
         [self.locationManager startMonitoringForRegion:region];
-//        [self.locationManager requestStateForRegion:region];
         [self.locationManager startRangingBeaconsInRegion:region];
     }
     
     self.isRanging = YES;
-    //startUpdatingLocation keeps the app alive in background
-//    [self.locationManager startUpdatingLocation];
 }
 
 - (void)stopMonitoringAndRanging {
@@ -191,54 +160,8 @@
     self.isRanging = NO;
 }
 
-- (void)startUpdatingLocation {
-    [self.locationManager startUpdatingLocation];
-}
-
-- (void)stopUpdatingLocation {
-    [self.locationManager stopUpdatingLocation];
-}
-
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
     NSLog(@"CYFBeaconManager del didDetermineState region %ld %@", state, region.identifier);
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    NSLog(@"CYFBeaconManager didUpdateLocations %ld", locations.count);
-    self.location = locations.firstObject;
-}
-
-- (void)startMonitoringGeoRegion:(CLCircularRegion *)geoRegion {
-    NSSet *monitoredRegions = self.locationManager.monitoredRegions;
-
-    BOOL monitoring = NO;
-    for (CLRegion *region in monitoredRegions) {
-        if ([region.identifier isEqualToString:geoRegion.identifier]) {
-            monitoring = YES;
-            break;
-        }
-    }
-    
-    if (!monitoring && monitoredRegions.count >= 20-self.regions.count) {
-        return;
-    }
-    
-    [self.locationManager startMonitoringForRegion:geoRegion];
-    [self.locationManager performSelector:@selector(requestStateForRegion:) withObject:geoRegion afterDelay:1];
-}
-
-- (NSArray *)monitoredGeoRegions {
-    NSSet *monitoredRegions = self.locationManager.monitoredRegions;
-    return
-    [[monitoredRegions.rac_sequence filter:^BOOL(CLRegion *region) {
-        return [region isKindOfClass:CLCircularRegion.class];
-    }] array];
-}
-
-- (void)stopMonitoringAllGeoRegions {
-    for (CLCircularRegion *geoRegion in self.monitoredGeoRegions) {
-        [self.locationManager stopMonitoringForRegion:geoRegion];
-    }
 }
 
 @end

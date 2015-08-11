@@ -9,8 +9,6 @@
 
 @class CLLocationManager;
 @class RACSignal;
-@class CLLocation;
-@class CLCircularRegion;
 
 @interface CYFBeaconManager : NSObject
 
@@ -18,8 +16,6 @@
 @property (nonatomic, strong, readonly) RACSignal *rangedBeaconsSignal;
 @property (nonatomic, readonly) BOOL authorizationStatusDetermined;
 @property (nonatomic, readonly) BOOL authorizationStatusAllowed;
-@property (nonatomic, strong, readonly) CLLocation *location;
-@property (nonatomic, strong, readonly) CLCircularRegion *geoRegion;
 @property (nonatomic) NSTimeInterval intervalForBeaconRanging;
 @property (nonatomic) NSTimeInterval lengthOfBeaconRanging;
 @property (nonatomic, readonly) BOOL isRanging;
@@ -27,11 +23,5 @@
 - (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager;
 - (void)startMonitoringRegionsAndRangingBeacons;
 - (void)stopMonitoringAndRanging;
-- (void)startUpdatingLocation;
-- (void)stopUpdatingLocation;
-
-- (void)startMonitoringGeoRegion:(CLCircularRegion *)geoRegion;
-- (void)stopMonitoringAllGeoRegions;
-- (NSArray *)monitoredGeoRegions;
 
 @end
