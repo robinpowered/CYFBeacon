@@ -7,7 +7,6 @@
 
 #import "CYFBeaconManager.h"
 #import "ReactiveCocoa.h"
-#import "CYFBeaconDistanceSmoother.h"
 #import "CYFBeacon.h"
 
 @import CoreLocation;
@@ -18,12 +17,9 @@
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) RACSignal *regionEnterSignal;
 @property (nonatomic, strong) RACSignal *regionExitSignal;
-@property (nonatomic, strong) RACSignal *noBeaconsNearbySignal;
 @property (nonatomic, readwrite) BOOL isRanging;
 
 @end
-
-
 
 @implementation CYFBeaconManager
 
