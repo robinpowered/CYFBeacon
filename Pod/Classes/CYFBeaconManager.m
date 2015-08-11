@@ -107,9 +107,10 @@
         RACSignal *intervalSignal =
         [[[RACSignal combineLatest:@[
                                    RACObserve(self, intervalForBeaconRanging),
-                                   RACObserve(self, isRanging)
+                                   RACObserve(self, isRanging),
+                                   RACObserve(self, alwaysRanging)
                                    ]]
-            reduceEach:^id(NSNumber *intervalForBeaconRanging, NSNumber *isRanging) {
+            reduceEach:^id(NSNumber *intervalForBeaconRanging, NSNumber *isRanging, NSNumber *alwaysRanging) {
                 if (!isRanging.boolValue) {
                     return [RACSignal empty];
                 }
