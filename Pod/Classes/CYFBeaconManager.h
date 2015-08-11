@@ -16,11 +16,9 @@
 @property (nonatomic, strong, readonly) RACSignal *rangedBeaconsSignal;
 @property (nonatomic, readonly) BOOL authorizationStatusDetermined;
 @property (nonatomic, readonly) BOOL authorizationStatusAllowed;
-@property (nonatomic) NSTimeInterval intervalForBeaconRanging;
-@property (nonatomic) NSTimeInterval lengthOfBeaconRanging;
 @property (nonatomic, readonly) BOOL isRanging;
 
-- (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager;
+- (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager intervalForBeaconRanging:(NSNumber *)intervalForBeaconRanging lengthOfBeaconRanging:(NSNumber *)lengthOfBeaconRanging;
 - (void)startMonitoringRegionsAndRangingBeacons;
 - (void)stopMonitoringAndRanging;
 

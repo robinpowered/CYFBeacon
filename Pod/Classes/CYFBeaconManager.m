@@ -15,15 +15,15 @@
 
 @property (nonatomic, strong) NSArray *regions;
 @property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic, strong) RACSignal *regionEnterSignal;
-@property (nonatomic, strong) RACSignal *regionExitSignal;
+//@property (nonatomic, strong) RACSignal *regionEnterSignal;
+//@property (nonatomic, strong) RACSignal *regionExitSignal;
 @property (nonatomic, readwrite) BOOL isRanging;
 
 @end
 
 @implementation CYFBeaconManager
 
-- (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager
+- (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager intervalForBeaconRanging:(NSNumber *)intervalForBeaconRanging lengthOfBeaconRanging:(NSNumber *)lengthOfBeaconRanging
 {
     self = [super init];
     if (self) {
@@ -31,36 +31,34 @@
         _locationManager.delegate = self;
         
         _regions = regions;
-        _intervalForBeaconRanging = 60;
-        _lengthOfBeaconRanging = 8;
         
-        self.regionEnterSignal =
-            [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
-                filter:^BOOL(RACTuple *tuple) {
-                    return [tuple.second integerValue] == CLRegionStateInside;
-                }]
-                map:^id(RACTuple *tuple) {
-                    CLBeaconRegion *region = tuple.third;
-                    return region;
-                }];
+//        self.regionEnterSignal =
+//            [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
+//                filter:^BOOL(RACTuple *tuple) {
+//                    return [tuple.second integerValue] == CLRegionStateInside;
+//                }]
+//                map:^id(RACTuple *tuple) {
+//                    CLBeaconRegion *region = tuple.third;
+//                    return region;
+//                }];
+//        
+//        self.regionExitSignal =
+//            [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
+//                filter:^BOOL(RACTuple *tuple) {
+//                    return [tuple.second integerValue] == CLRegionStateOutside;
+//                }]
+//                map:^id(RACTuple *tuple) {
+//                    CLBeaconRegion *region = tuple.third;
+//                    return region;
+//                }];
         
-        self.regionExitSignal =
-            [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
-                filter:^BOOL(RACTuple *tuple) {
-                    return [tuple.second integerValue] == CLRegionStateOutside;
-                }]
-                map:^id(RACTuple *tuple) {
-                    CLBeaconRegion *region = tuple.third;
-                    return region;
-                }];
-        
-        [[self.regionEnterSignal
-            filter:^BOOL(CLRegion *region) {
-                return [region isKindOfClass:CLBeaconRegion.class];
-            }]
-            subscribeNext:^(CLBeaconRegion *region) {
-                [self.locationManager startRangingBeaconsInRegion:region];
-            }];
+//        [[self.regionEnterSignal
+//            filter:^BOOL(CLRegion *region) {
+//                return [region isKindOfClass:CLBeaconRegion.class];
+//            }]
+//            subscribeNext:^(CLBeaconRegion *region) {
+//                [self.locationManager startRangingBeaconsInRegion:region];
+//            }];
         
         RACSignal *rangedBeaconsSignal = [self rac_signalForSelector:@selector(locationManager:didRangeBeacons:inRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)];
         NSArray *regionsRangedBeaconsSignals =
@@ -105,9 +103,16 @@
             }];
         
         
-        RACSignal *intevalSignal = [RACSignal interval:self.intervalForBeaconRanging onScheduler:[RACScheduler mainThreadScheduler]];
-         
-        [intevalSignal
+        RACSignal *stopMonitoringAndRangingSignal = [self rac_signalForSelector:@selector(stopMonitoringAndRanging)];
+        
+        RACSignal *intervalSignal =
+        [[[self rac_signalForSelector:@selector(startMonitoringRegionsAndRangingBeacons)]
+            map:^id(id value) {
+                return [[RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]] takeUntil:stopMonitoringAndRangingSignal];
+            }]
+            switchToLatest];
+        
+        [intervalSignal
             subscribeNext:^(id x) {
                 NSLog(@"interval startttt ranging");
                 if (self.isRanging) {
@@ -117,7 +122,7 @@
                 }
             }];
         
-        [[intevalSignal delay:self.lengthOfBeaconRanging]
+        [[intervalSignal delay:lengthOfBeaconRanging.doubleValue]
             subscribeNext:^(id x) {
                 NSLog(@"interval topppppp ranging");
                 if (self.isRanging) {
@@ -151,7 +156,7 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    NSLog(@"CYFBeaconManager didDetermineState region %ld %@", state, region.identifier);
+    NSLog(@"CYFBeaconManager didDetermineState region %ld %@", (long)state, region.identifier);
 }
 
 @end
