@@ -191,6 +191,9 @@ static const float kAccuracyFar = 10;
 
 }
 
-
+- (void)reset {
+    [self.beaconToHistory removeAllObjects];
+    self.counter = 0;
+}
 
 @end

@@ -14,12 +14,16 @@
  */
 @interface CYFBeaconDistanceSmoother : NSObject
 
-/// Feed smoother with raw CLBeacons.
-- (void)addRangedBeacons:(NSArray *)beacons;
-
 @property (nonatomic) NSInteger refreshRate;
 
 /// An array of CYFBeacon.
 @property (nonatomic, strong, readonly) NSArray *smoothedBeacons;
+
+
+/// Feed smoother with raw CLBeacons.
+- (void)addRangedBeacons:(NSArray *)beacons;
+
+/// Clear history and reset to initial state
+- (void)reset;
 
 @end
