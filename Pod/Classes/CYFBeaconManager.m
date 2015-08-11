@@ -29,7 +29,7 @@
     if (self) {
         _locationManager = locationManager;
         _locationManager.delegate = self;
-        
+        _intervalForBeaconRanging = intervalForBeaconRanging.doubleValue;
         _regions = regions;
         
 //        self.regionEnterSignal =
@@ -108,7 +108,7 @@
         RACSignal *intervalSignal =
         [[[self rac_signalForSelector:@selector(startMonitoringRegionsAndRangingBeacons)]
             map:^id(id value) {
-                return [[RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]] takeUntil:stopMonitoringAndRangingSignal];
+                return [[RACSignal interval:self.intervalForBeaconRanging onScheduler:[RACScheduler mainThreadScheduler]] takeUntil:stopMonitoringAndRangingSignal];
             }]
             switchToLatest];
         

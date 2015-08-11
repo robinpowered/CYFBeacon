@@ -17,6 +17,7 @@
 @property (nonatomic, readonly) BOOL authorizationStatusDetermined;
 @property (nonatomic, readonly) BOOL authorizationStatusAllowed;
 @property (nonatomic, readonly) BOOL isRanging;
+@property (nonatomic) NSTimeInterval intervalForBeaconRanging;
 
 - (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager intervalForBeaconRanging:(NSNumber *)intervalForBeaconRanging lengthOfBeaconRanging:(NSNumber *)lengthOfBeaconRanging;
 - (void)startMonitoringRegionsAndRangingBeacons;
