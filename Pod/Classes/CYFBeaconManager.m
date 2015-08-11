@@ -103,12 +103,18 @@
             }];
         
         
-        RACSignal *stopMonitoringAndRangingSignal = [self rac_signalForSelector:@selector(stopMonitoringAndRanging)];
         
         RACSignal *intervalSignal =
-        [[[self rac_signalForSelector:@selector(startMonitoringRegionsAndRangingBeacons)]
-            map:^id(id value) {
-                return [[RACSignal interval:self.intervalForBeaconRanging onScheduler:[RACScheduler mainThreadScheduler]] takeUntil:stopMonitoringAndRangingSignal];
+        [[[RACSignal combineLatest:@[
+                                   RACObserve(self, intervalForBeaconRanging),
+                                   RACObserve(self, isRanging)
+                                   ]]
+            reduceEach:^id(NSNumber *intervalForBeaconRanging, NSNumber *isRanging) {
+                if (!isRanging.boolValue) {
+                    return [RACSignal empty];
+                }
+                
+                return [RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]];
             }]
             switchToLatest];
         
@@ -124,8 +130,8 @@
         
         [[intervalSignal delay:lengthOfBeaconRanging.doubleValue]
             subscribeNext:^(id x) {
-                NSLog(@"interval topppppp ranging");
-                if (self.isRanging) {
+                NSLog(@"interval stoppppp ranging");
+                if (self.isRanging && !self.alwaysRanging) {
                     for (CLBeaconRegion *region in self.regions) {
                         [self.locationManager stopRangingBeaconsInRegion:region];
                     }
