@@ -114,7 +114,7 @@
                     return [RACSignal empty];
                 }
                 
-                return [RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]];
+                return [[RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]] startWith:[NSDate date]];
             }]
             switchToLatest];
         
