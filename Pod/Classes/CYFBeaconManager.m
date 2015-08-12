@@ -30,6 +30,7 @@
         _locationManager = locationManager;
         _locationManager.delegate = self;
         _intervalForBeaconRanging = intervalForBeaconRanging.doubleValue;
+        _lengthOfBeaconRanging = lengthOfBeaconRanging.doubleValue;
         _regions = regions;
         
 //        self.regionEnterSignal =
@@ -129,7 +130,11 @@
                 }
             }];
         
-        [[intervalSignal delay:lengthOfBeaconRanging.doubleValue]
+        [[[intervalSignal
+            map:^id(id value) {
+                return [[RACSignal return:nil] delay:self.lengthOfBeaconRanging];
+            }]
+            switchToLatest]
             subscribeNext:^(id x) {
                 NSLog(@"interval stoppppp ranging");
                 if (self.isRanging && !self.alwaysRanging) {

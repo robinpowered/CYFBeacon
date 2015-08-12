@@ -19,6 +19,7 @@
 @property (nonatomic, readonly) BOOL isRanging;
 @property (nonatomic) BOOL alwaysRanging;
 @property (nonatomic) NSTimeInterval intervalForBeaconRanging;
+@property (nonatomic) NSTimeInterval lengthOfBeaconRanging;
 
 - (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager intervalForBeaconRanging:(NSNumber *)intervalForBeaconRanging lengthOfBeaconRanging:(NSNumber *)lengthOfBeaconRanging;
 - (void)startMonitoringRegionsAndRangingBeacons;
