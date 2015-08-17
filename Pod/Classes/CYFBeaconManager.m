@@ -122,7 +122,6 @@
         
         [intervalSignal
             subscribeNext:^(id x) {
-                NSLog(@"interval startttt ranging");
                 if (self.isRanging) {
                     for (CLBeaconRegion *region in self.regions) {
                         [self.locationManager startRangingBeaconsInRegion:region];
@@ -136,7 +135,6 @@
             }]
             switchToLatest]
             subscribeNext:^(id x) {
-                NSLog(@"interval stoppppp ranging");
                 if (self.isRanging && !self.alwaysRanging) {
                     for (CLBeaconRegion *region in self.regions) {
                         [self.locationManager stopRangingBeaconsInRegion:region];
@@ -148,7 +146,6 @@
 }
 
 - (void)startMonitoringRegionsAndRangingBeacons {
-    NSLog(@"CYFBeaconManager startMonitoringRegionsAndRangingBeacons");
 
     for (CLBeaconRegion *region in self.regions) {
         [self.locationManager startMonitoringForRegion:region];
@@ -159,7 +156,6 @@
 }
 
 - (void)stopMonitoringAndRanging {
-    NSLog(@"CYFBeaconManager stopMonitoringAndRanging");
     for (CLBeaconRegion *region in self.regions) {
         [self.locationManager stopRangingBeaconsInRegion:region];
         [self.locationManager stopMonitoringForRegion:region];
@@ -168,7 +164,6 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    NSLog(@"CYFBeaconManager didDetermineState region %ld %@", (long)state, region.identifier);
 }
 
 @end
