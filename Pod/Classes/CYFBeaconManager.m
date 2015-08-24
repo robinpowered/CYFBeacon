@@ -14,9 +14,9 @@
 @interface CYFBeaconManager () <CLLocationManagerDelegate>
 
 @property (nonatomic, strong) NSArray *regions;
+// Mapping from region to it's current state.
+@property (nonatomic, strong) NSMutableDictionary *regionStates;
 @property (nonatomic, strong) CLLocationManager *locationManager;
-//@property (nonatomic, strong) RACSignal *regionEnterSignal;
-//@property (nonatomic, strong) RACSignal *regionExitSignal;
 @property (nonatomic, readwrite) BOOL isRanging;
 
 @end
@@ -108,42 +108,49 @@
                 return @(status.integerValue == kCLAuthorizationStatusAuthorized || status.integerValue == kCLAuthorizationStatusAuthorizedAlways);
             }];
         
-//        RACSignal *intervalSignal =
-//        [[[RACSignal combineLatest:@[
-//                                   RACObserve(self, intervalForBeaconRanging),
-//                                   RACObserve(self, isRanging),
-//                                   RACObserve(self, alwaysRanging)
-//                                   ]]
-//            reduceEach:^id(NSNumber *intervalForBeaconRanging, NSNumber *isRanging, NSNumber *alwaysRanging) {
-//                if (!isRanging.boolValue) {
-//                    return [RACSignal empty];
-//                }
-//                
-//                return [[RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]] startWith:[NSDate date]];
-//            }]
-//            switchToLatest];
-//        
-//        [intervalSignal
-//            subscribeNext:^(id x) {
-//                if (self.isRanging) {
-//                    for (CLBeaconRegion *region in self.regions) {
-//                        [self.locationManager startRangingBeaconsInRegion:region];
-//                    }
-//                }
-//            }];
-//        
-//        [[[intervalSignal
-//            map:^id(id value) {
-//                return [[RACSignal return:nil] delay:self.lengthOfBeaconRanging];
-//            }]
-//            switchToLatest]
-//            subscribeNext:^(id x) {
-//                if (self.isRanging && !self.alwaysRanging) {
-//                    for (CLBeaconRegion *region in self.regions) {
-//                        [self.locationManager stopRangingBeaconsInRegion:region];
-//                    }
-//                }
-//            }];
+        RACSignal *intervalSignal =
+        [[[RACSignal combineLatest:@[
+                                   RACObserve(self, intervalForBeaconRanging),
+                                   RACObserve(self, isRanging),
+                                   RACObserve(self, alwaysRanging)
+                                   ]]
+            reduceEach:^id(NSNumber *intervalForBeaconRanging, NSNumber *isRanging, NSNumber *alwaysRanging) {
+                if (!isRanging.boolValue) {
+                    return [RACSignal empty];
+                }
+                
+                return [[RACSignal interval:intervalForBeaconRanging.doubleValue onScheduler:[RACScheduler mainThreadScheduler]] startWith:[NSDate date]];
+            }]
+            switchToLatest];
+        
+        [intervalSignal
+            subscribeNext:^(id x) {
+                @strongify(self)
+                if (self.isRanging) {
+                    for (CLBeaconRegion *region in self.regions) {
+                        NSNumber *state = self.regionStates[region];
+                        if (state && state.integerValue == CLRegionStateInside) {
+                            [self.locationManager startRangingBeaconsInRegion:region];
+                        }
+                    }
+                }
+            }];
+        
+        [[[intervalSignal
+            map:^id(id value) {
+                return [[RACSignal return:nil] delay:self.lengthOfBeaconRanging];
+            }]
+            switchToLatest]
+            subscribeNext:^(id x) {
+                if (self.isRanging && !self.alwaysRanging) {
+                    for (CLBeaconRegion *region in self.regions) {
+                        NSNumber *state = self.regionStates[region];
+                        if (state && state.integerValue == CLRegionStateInside) {
+                            [self.locationManager stopRangingBeaconsInRegion:region];
+                        }
+                    }
+                }
+            }];
     }
     return self;
 }
@@ -165,6 +172,7 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
+    self.regionStates[region] = @(state);
 }
 
 @end
