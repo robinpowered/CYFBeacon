@@ -32,6 +32,7 @@
         _intervalForBeaconRanging = intervalForBeaconRanging.doubleValue;
         _lengthOfBeaconRanging = lengthOfBeaconRanging.doubleValue;
         _regions = regions;
+        _regionStates = [NSMutableDictionary dictionaryWithCapacity:20];
         
         RACSignal *regionEnterSignal =
             [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
