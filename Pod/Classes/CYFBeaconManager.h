@@ -13,8 +13,8 @@
 @interface CYFBeaconManager : NSObject
 
 @property (nonatomic, readonly) NSArray *regions;
-// Regions with state CLRegionStateInside
-@property (nonatomic, readonly) NSSet *insideRegions;
+// YES if inside any 'regions'
+@property (nonatomic, readonly) BOOL isInsideRegions;
 @property (nonatomic, strong, readonly) RACSignal *rangedBeaconsSignal;
 @property (nonatomic, readonly) BOOL authorizationStatusDetermined;
 @property (nonatomic, readonly) BOOL authorizationStatusAllowed;

@@ -18,6 +18,7 @@
 @property (nonatomic, strong) NSArray *regions;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, readwrite) BOOL isRanging;
+@property (nonatomic, readwrite) BOOL isInsideRegions;
 
 @end
 
@@ -175,11 +176,8 @@
         else {
             [_insideRegions removeObject:region];
         }
+        self.isInsideRegions = _insideRegions.count > 0;
     }
-}
-
-- (NSSet *)insideRegions {
-    return [_insideRegions copy];
 }
 
 @end
