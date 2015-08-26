@@ -11,11 +11,11 @@
 
 @import CoreLocation;
 
-@interface CYFBeaconManager () <CLLocationManagerDelegate>
+@interface CYFBeaconManager () <CLLocationManagerDelegate> {
+    NSMutableSet *_insideRegions;
+}
 
 @property (nonatomic, strong) NSArray *regions;
-// Mapping from region to it's current state.
-@property (nonatomic, strong) NSMutableDictionary *regionStates;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, readwrite) BOOL isRanging;
 
@@ -32,7 +32,7 @@
         _intervalForBeaconRanging = intervalForBeaconRanging.doubleValue;
         _lengthOfBeaconRanging = lengthOfBeaconRanging.doubleValue;
         _regions = regions;
-        _regionStates = [NSMutableDictionary dictionaryWithCapacity:20];
+        _insideRegions = [NSMutableSet setWithCapacity:20];
         
         RACSignal *regionEnterSignal =
             [[[self rac_signalForSelector:@selector(locationManager:didDetermineState:forRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)]
@@ -128,11 +128,8 @@
             subscribeNext:^(id x) {
                 @strongify(self)
                 if (self.isRanging) {
-                    for (CLBeaconRegion *region in self.regions) {
-                        NSNumber *state = self.regionStates[region];
-                        if (state && state.integerValue == CLRegionStateInside) {
-                            [self.locationManager startRangingBeaconsInRegion:region];
-                        }
+                    for (CLBeaconRegion *region in _insideRegions) {
+                        [self.locationManager startRangingBeaconsInRegion:region];
                     }
                 }
             }];
@@ -143,12 +140,10 @@
             }]
             switchToLatest]
             subscribeNext:^(id x) {
+                @strongify(self)
                 if (self.isRanging && !self.alwaysRanging) {
-                    for (CLBeaconRegion *region in self.regions) {
-                        NSNumber *state = self.regionStates[region];
-                        if (state && state.integerValue == CLRegionStateInside) {
-                            [self.locationManager stopRangingBeaconsInRegion:region];
-                        }
+                    for (CLBeaconRegion *region in _insideRegions) {
+                        [self.locationManager stopRangingBeaconsInRegion:region];
                     }
                 }
             }];
@@ -173,7 +168,18 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    self.regionStates[region] = @(state);
+    if ([region isKindOfClass:CLBeaconRegion.class]) {
+        if (state == CLRegionStateInside) {
+            [_insideRegions addObject:region];
+        }
+        else {
+            [_insideRegions removeObject:region];
+        }
+    }
+}
+
+- (NSSet *)insideRegions {
+    return [_insideRegions copy];
 }
 
 @end
