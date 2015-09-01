@@ -154,16 +154,14 @@
 
 - (void)startMonitoringRegionsAndRangingBeacons {
     for (CLBeaconRegion *region in self.regions) {
-        [self.locationManager startMonitoringForRegion:region];
-        [self.locationManager startRangingBeaconsInRegion:region];
+        [self _startMonitoringAndRangingInRegion:region];
     }
     self.isRanging = YES;
 }
 
 - (void)stopMonitoringAndRanging {
     for (CLBeaconRegion *region in self.regions) {
-        [self.locationManager stopRangingBeaconsInRegion:region];
-        [self.locationManager stopMonitoringForRegion:region];
+        [self _stopMonitoringAndRangingInRegion:region];
     }
     self.isRanging = NO;
 }
@@ -178,6 +176,31 @@
         }
         self.isInsideRegions = _insideRegions.count > 0;
     }
+}
+
+- (void)addRegion:(CLBeaconRegion *)region {
+    self.regions = [self.regions arrayByAddingObject:region];
+    
+    if (self.isRanging) {
+        [self _startMonitoringAndRangingInRegion:region];
+    }
+    
+    for (CLRegion *region in self.locationManager.monitoredRegions) {
+        if ([region isKindOfClass:[CLBeaconRegion class]] && ![self.regions containsObject:region]) {
+            NSLog(@"stop region %@ because it should not be monitored", region.identifier);
+            [self _stopMonitoringAndRangingInRegion:(CLBeaconRegion *)region];
+        }
+    }
+}
+
+- (void)_startMonitoringAndRangingInRegion:(CLBeaconRegion *)region {
+    [self.locationManager startMonitoringForRegion:region];
+    [self.locationManager startRangingBeaconsInRegion:region];
+}
+
+- (void)_stopMonitoringAndRangingInRegion:(CLBeaconRegion *)region {
+    [self.locationManager stopRangingBeaconsInRegion:region];
+    [self.locationManager stopMonitoringForRegion:region];
 }
 
 @end

@@ -9,6 +9,7 @@
 
 @class CLLocationManager;
 @class RACSignal;
+@class CLBeaconRegion;
 
 @interface CYFBeaconManager : NSObject
 
@@ -26,5 +27,6 @@
 - (instancetype)initWithRegions:(NSArray *)regions locationManager:(CLLocationManager *)locationManager intervalForBeaconRanging:(NSNumber *)intervalForBeaconRanging lengthOfBeaconRanging:(NSNumber *)lengthOfBeaconRanging;
 - (void)startMonitoringRegionsAndRangingBeacons;
 - (void)stopMonitoringAndRanging;
+- (void)addRegion:(CLBeaconRegion *)region;
 
 @end
