@@ -68,29 +68,23 @@
             [locationManager startRangingBeaconsInRegion:region];
         }];
         
-        RACSignal *rangedBeaconsSignal = [self rac_signalForSelector:@selector(locationManager:didRangeBeacons:inRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)];
-        NSArray *regionsRangedBeaconsSignals =
-            [[self.regions.rac_sequence map:^id(CLBeaconRegion *region) {
-                return
-                    [[rangedBeaconsSignal
-                        filter:^BOOL(RACTuple *tuple) { //tuple consits of CLLocationManager *manager, NSArray *beacons, CLBeaconRegion *region
-                            return [tuple.third isEqual:region];
-                        }]
-                        reduceEach:^(CLLocationManager *manager, NSArray *beacons, CLBeaconRegion *_) {
-                            return beacons;
-                        }];
-            }] array];
         
+        NSMutableArray *beaconBuffer = [NSMutableArray arrayWithCapacity:50];
+        RACSignal *rangedBeaconsSignal = [self rac_signalForSelector:@selector(locationManager:didRangeBeacons:inRegion:) fromProtocol:@protocol(CLLocationManagerDelegate)];
         
         RACSignal *combinedRangedBeaconsSignal =
-            [[[RACSignal combineLatest:regionsRangedBeaconsSignals] throttle:0.3] map:^id(RACTuple *regionsRangedBeacons) {
-                return
-                    [regionsRangedBeacons.rac_sequence foldLeftWithStart:[NSMutableArray arrayWithCapacity:20] reduce:^id(NSMutableArray *result, NSArray *rangedBeacons) {
-                        
-                        [result addObjectsFromArray:rangedBeacons];
-                        return result;
-                    }];
+        [[[rangedBeaconsSignal
+            reduceEach:^(CLLocationManager *manager, NSArray *beacons, CLBeaconRegion *_) {
+                [beaconBuffer addObjectsFromArray:beacons];
+                return beaconBuffer;
+            }]
+            throttle:0.3]
+            map:^id(NSMutableArray *buffer) {
+                NSArray *ret = [buffer copy];
+                [buffer removeAllObjects];
+                return ret;
             }];
+
         _rangedBeaconsSignal = combinedRangedBeaconsSignal;
 
         RACSignal *authorizationStatusSignal =
