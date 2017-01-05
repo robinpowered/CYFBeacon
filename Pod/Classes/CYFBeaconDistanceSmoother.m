@@ -19,7 +19,7 @@ static const float kAccuracyFar = 10;
 @property (nonatomic, readonly) NSUInteger historyMinLength;
 @property (nonatomic, strong, readonly) CLBeacon *beacon;
 @property (nonatomic) NSUInteger missingCount;
-@property (nonatomic, strong) NSNull *missingBeacon;
+@property (nonatomic, strong, readonly) NSNull *missingBeacon;
 
 ///Average accuracy or -1 if the beacon is missing
 @property (nonatomic) double averageAccuracy;
