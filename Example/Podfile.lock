@@ -1,7 +1,6 @@
 PODS:
-  - CYFBeacon (0.1.0):
+  - RBIBeacon (0.2.0):
     - ReactiveCocoa (~> 2.3)
-  - Expecta (0.3.1)
   - ReactiveCocoa (2.5):
     - ReactiveCocoa/UI (= 2.5)
   - ReactiveCocoa/Core (2.5):
@@ -9,21 +8,18 @@ PODS:
   - ReactiveCocoa/no-arc (2.5)
   - ReactiveCocoa/UI (2.5):
     - ReactiveCocoa/Core
-  - Specta (0.2.1)
 
 DEPENDENCIES:
-  - CYFBeacon (from `../`)
-  - Expecta
-  - Specta (~> 0.2.1)
+  - RBIBeacon (from `../`)
 
 EXTERNAL SOURCES:
-  CYFBeacon:
+  RBIBeacon:
     :path: ../
 
 SPEC CHECKSUMS:
-  CYFBeacon: e30564a551f247f40ba2dd46add43d93260df4f0
-  Expecta: a354d4633409dd9fe8c4f5ff5130426adbe31628
+  RBIBeacon: 35153f5bcb6eda3ecadb35956d05727eb982c547
   ReactiveCocoa: e2db045570aa97c695e7aa97c2bcab222ae51f4a
-  Specta: 15a276a6343867b426d5ed135d5aa4d04123a573
 
-COCOAPODS: 0.37.2
+PODFILE CHECKSUM: 5f7e0a01cb5fb24aac526674689486f737c679a0
+
+COCOAPODS: 1.0.1
