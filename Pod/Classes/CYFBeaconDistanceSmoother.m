@@ -19,7 +19,7 @@ static const float kAccuracyFar = 10;
 @property (nonatomic, readonly) NSUInteger historyMinLength;
 @property (nonatomic, strong, readonly) CLBeacon *beacon;
 @property (nonatomic) NSUInteger missingCount;
-@property (nonatomic, strong, readonly) CLBeacon *missingBeacon;
+@property (nonatomic, strong, readonly) NSNull *missingBeacon;
 
 ///Average accuracy or -1 if the beacon is missing
 @property (nonatomic) double averageAccuracy;
@@ -36,8 +36,8 @@ static const float kAccuracyFar = 10;
         _history = [NSMutableArray arrayWithCapacity:maxLength];
         _historyMaxLength = maxLength;
         _beacon = beacon;
-        _missingBeacon = [[CLBeacon alloc] init];
         _historyMinLength = minLength;
+        _missingBeacon = [NSNull null];
         
     }
     return self;
@@ -74,7 +74,7 @@ static const float kAccuracyFar = 10;
     for (NSUInteger i = 0; i < self.history.count; i++) {
         CLBeacon *record = self.history[i];
         
-        if (record == self.missingBeacon) {
+        if ([record isEqual:self.missingBeacon]) {
             accuracyMissingCount++;
         }
         else if (record.accuracy < 0) {
