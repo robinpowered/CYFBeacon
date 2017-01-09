@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "RBIBeacon"
-  s.version          = "0.2.0"
+  s.version          = "1.0.0"
   s.summary          = "A beacon manager and a ranged beacons smoother"
   s.description      = <<-DESC
                        A beacon manager and a ranged beacons smoother that output averaged beacons' accuracy.
