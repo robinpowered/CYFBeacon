@@ -1,4 +1,4 @@
-# CYFBeacon
+# RBIBeacon
 
 [![CI Status](http://img.shields.io/travis/yifeic/CYFBeacon.svg?style=flat)](https://travis-ci.org/yifeic/CYFBeacon)
 [![Version](https://img.shields.io/cocoapods/v/CYFBeacon.svg?style=flat)](http://cocoadocs.org/docsets/CYFBeacon)
@@ -13,16 +13,17 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Installation
 
-CYFBeacon is available through [CocoaPods](http://cocoapods.org). To install
+RBIBeacon is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
-    pod "CYFBeacon"
+    pod "CYFBeacon", :git => 'https://github.com/robinpowered/CYFBeacon.git'
 
-## Author
+## Contributors
 
 yifeic, yifei.chen@outlook.com
+cchestnut, cchestnut91@gmail.com
 
 ## License
 
-CYFBeacon is available under the MIT license. See the LICENSE file for more info.
+RBIBeacon is available under the MIT license. See the LICENSE file for more info.
 
