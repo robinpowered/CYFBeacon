@@ -18,9 +18,10 @@ it, simply add the following line to your Podfile:
 
     pod "CYFBeacon", :git => 'https://github.com/robinpowered/CYFBeacon.git'
 
-## Author
+## Contributors
 
 yifeic, yifei.chen@outlook.com
+cchestnut, cchestnut91@gmail.com
 
 ## License
 
